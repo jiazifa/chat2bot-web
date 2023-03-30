@@ -96,19 +96,18 @@ export default function HeaderMiddle({ links }: HeaderMiddleProps) {
                 <Group className={classes.links} spacing={5}>
                     {items}
                 </Group>
-                Manager My Cartoons
+                Chat 2 Bot
 
                 <Group spacing={0} className={classes.social} position="right" noWrap>
 
-                    <ActionIcon size="lg" onClick={() => {
-
-                    }}>
+                    <ActionIcon size="lg">
                         <IconSearch />
                     </ActionIcon>
                     <Link href="/setting">
-                        <ActionIcon size="lg" />
+                        <ActionIcon size="lg">
+                            <IconSettings />
+                        </ActionIcon>
                     </Link>
-                    <IconSettings />
                 </Group>
             </Container>
         </Header >

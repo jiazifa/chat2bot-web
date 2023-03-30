@@ -1,9 +1,13 @@
 'use client';
 
+import { Container } from "@mantine/core";
+
 const SettingPage = () => {
     return (
         <>
-            <h1>Setting</h1>
+            <Container>
+                <h1>Setting Page</h1>
+            </Container>
         </>
     );
 }
