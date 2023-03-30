@@ -3,8 +3,6 @@ import { persist } from "zustand/middleware";
 
 import { trimTopic } from "../utils";
 
-import Locale from "../locales";
-
 type Role = "user" | "assistant" | "system";
 
 export type Message = {
@@ -151,7 +149,7 @@ export interface ChatConversation {
   lastSummarizeIndex: number;
 }
 
-const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
+const DEFAULT_TOPIC = "新的聊天";
 
 function createEmptySession(): ChatConversation {
   const createDate = new Date().toLocaleString();
@@ -163,7 +161,7 @@ function createEmptySession(): ChatConversation {
     messages: [
       {
         role: "assistant",
-        content: Locale.Store.BotHello,
+        content: "有什么可以帮您的吗",
         date: createDate,
       },
     ],
@@ -358,7 +356,7 @@ export const useChatStore = create<ChatStore>()(
 
         return {
           role: "system",
-          content: Locale.Store.Prompt.History(session.memoryPrompt),
+          content: `这是 ai 和用户的历史聊天总结作为前情提要：${session.memoryPrompt}`,
           date: "",
         } as Message;
       },
@@ -476,7 +474,7 @@ export const useChatStore = create<ChatStore>()(
       },
 
       clearAllData() {
-        if (confirm(Locale.Store.ConfirmClearAll)) {
+        if (confirm("确认清除所有聊天、设置数据？")) {
           localStorage.clear();
           location.reload();
         }
