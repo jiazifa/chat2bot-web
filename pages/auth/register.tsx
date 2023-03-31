@@ -8,31 +8,81 @@ import {
     Container,
     Button,
 } from '@mantine/core';
+import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
+import { useState } from 'react';
+import Locales from '../../components/locales';
+import { regexEmailValid, regexPasswordValid } from '../../components/utils';
 
 const LoginPage = () => {
-    // eslint-disable-next-line no-console
-    console.log('LoginPage');
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [confirmPassword, setConfirmPassword] = useState("");
+    const onRegisterAction = () => {
+        if (email === "" || password === "" || confirmPassword === "") {
+            notifications.show({
+                title: Locales.Auth.EmptyFields,
+                color: 'red',
+                message: Locales.Auth.EmptyFields
+            })
+            return;
+        }
+        // regex password format
+        if (password !== confirmPassword) {
+            notifications.show({
+                title: Locales.Auth.PasswordsNotMatch,
+                color: 'red',
+                message: Locales.Auth.TryInputAgain
+            })
+            return;
+        }
+
+        if (!regexEmailValid(email)) {
+            notifications.show({
+                title: Locales.Auth.EmailNotValid,
+                color: 'red',
+                message: Locales.Auth.TryInputAgain
+            })
+            return;
+        }
+
+        if (!regexPasswordValid(password)) {
+            notifications.show({
+                title: Locales.Auth.PasswordInvalid,
+                color: 'red',
+                message: Locales.Auth.TryInputAgain
+            })
+            return;
+        }
+
+        notifications.show({
+            title: "Success",
+            color: 'green',
+            message: ""
+        })
+    };
+
     return (
         <Container size={420} my={40}>
             <Title align="center" sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}`, fontWeight: 900 })}>
-                欢迎你！
+                {Locales.Auth.Welcome}
             </Title>
             <Text color="dimmed" size="sm" align="center" mt={5}>
-                已经有账号了吗?{' '}
+                {Locales.Auth.AlreadyHaveAccount}{' '}
                 <Link href="/auth/login">
                     <Anchor size="sm" component="button">
-                        去登录
+                        {Locales.Auth.GoLogin}
                     </Anchor>
                 </Link>
             </Text>
 
             <Paper withBorder shadow="md" p={30} mt={30} radius="md">
-                <TextInput label="邮箱" placeholder="请输入邮箱" required />
-                <PasswordInput label="密码" placeholder="请输入密码" required mt="md" />
-
-                <Button fullWidth mt="xl">
-                    注册
+                <TextInput label={Locales.Auth.EmailTitle} placeholder={Locales.Auth.EmailPlaceholder} value={email} onChange={(e) => setEmail(e.target.value)} required />
+                <PasswordInput label={Locales.Auth.PasswordTitle} placeholder={Locales.Auth.PasswordPlaceholder} value={password} onChange={(e) => setPassword(e.target.value)} required mt="md" />
+                <PasswordInput label={Locales.Auth.ConfirmPasswordTitle} placeholder={Locales.Auth.ConfirmPasswordPlaceholder} value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} required mt="md" />
+                <Button fullWidth mt="xl" onClick={() => onRegisterAction()}>
+                    {Locales.Auth.Register}
                 </Button>
             </Paper>
         </Container>

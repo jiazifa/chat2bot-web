@@ -1,13 +1,11 @@
-import CN from './cn';
-import EN from './en';
-import TW from './tw';
+import CN from "./cn";
 
-export type { LocaleType } from './cn';
+export type { LocaleType } from "./cn";
 
-export const AllLangs = ['en', 'cn', 'tw'] as const;
+export const AllLangs = ["cn"] as const;
 type Lang = typeof AllLangs[number];
 
-const LANG_KEY = 'lang';
+const LANG_KEY = "lang";
 
 function getItem(key: string) {
   try {
@@ -29,26 +27,22 @@ function getLanguage() {
   try {
     return navigator.language.toLowerCase();
   } catch {
-    return 'cn';
+    return "cn";
   }
 }
 
 export function getLang(): Lang {
   const savedLang = getItem(LANG_KEY);
 
-  if (AllLangs.includes((savedLang ?? '') as Lang)) {
+  if (AllLangs.includes((savedLang ?? "") as Lang)) {
     return savedLang as Lang;
   }
 
   const lang = getLanguage();
 
-  if (lang.includes('zh') || lang.includes('cn')) {
-    return 'cn';
-  }
-  if (lang.includes('tw')) {
-    return 'tw';
-  }
-  return 'en';
+  // if (lang.includes("zh") || lang.includes("cn")) {
+  // }
+  return "cn";
 }
 
 export function changeLang(lang: Lang) {
@@ -57,4 +51,4 @@ export function changeLang(lang: Lang) {
   location.reload();
 }
 
-export default { en: EN, cn: CN, tw: TW }[getLang()];
+export default { cn: CN }[getLang()];
