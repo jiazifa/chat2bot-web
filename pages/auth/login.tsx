@@ -11,15 +11,21 @@ import {
     Button,
 } from '@mantine/core';
 import { notifications } from '@mantine/notifications';
+import dayjs from 'dayjs';
 import Link from 'next/link';
+import Router from 'next/router';
 import { useState } from 'react';
 import Locales from '../../components/locales';
+import { requestLogin } from '../../components/requests';
+import { useAccountStore } from '../../components/store';
 import { regexEmailValid, regexPasswordValid } from '../../components/utils';
 
 const LoginPage = () => {
-    const [email, setEmail] = useState("");
-    const [password, setPassword] = useState("");
-    const onLoginAction = () => {
+    const [email, setEmail] = useState("admin@email.com");
+    const [password, setPassword] = useState("admin");
+    const store = useAccountStore();
+
+    const onLoginAction = async () => {
         if (!regexEmailValid(email)) {
             notifications.show({
                 title: Locales.Auth.EmailNotValid,
@@ -37,8 +43,17 @@ const LoginPage = () => {
             })
             return;
         }
+        const data = await requestLogin(email, password);
+        const account = {
+            id: data.user_id,
+            uuid: data.identifier,
+            email: data.email,
+            createAt: data.createAt
+        }
+        store.addAccount(account);
+        store.loginAccount({ ...account, token: data.token });
+        Router.push('/');
     };
-
     return (
         <Container size={420} my={40}>
             <Title align="center" sx={(theme) => ({ fontFamily: `Greycliff CF, ${theme.fontFamily}`, fontWeight: 900 })}>

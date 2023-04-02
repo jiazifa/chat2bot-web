@@ -1,7 +1,7 @@
-import { Avatar, Container, Flex, Group, Paper, SegmentedControl, Select, Slider, Space, Switch, Text, TextInput, Title } from "@mantine/core";
-import { useHover } from "@mantine/hooks";
+import { Container, Flex, Group, Paper, SegmentedControl, Select, Slider, Space, Switch, Text, TextInput, Title } from "@mantine/core";
 import { ReactNode } from "react";
 import Locales from '../components/locales';
+import { useAccountStore, useAppStore, useChatStore } from "../components/store";
 
 const SettingItemBuilder = ({ children, title, description }: { children: ReactNode, title: string, description?: string }) => {
     return (
@@ -37,6 +37,15 @@ const SettingSectionHeader = ({ title, description }: { title?: string, descript
 );
 
 const SettingPage = () => {
+
+    const accountStore = useAccountStore();
+    const chatStore = useChatStore();
+    const appStore = useAppStore();
+
+    const selfAccount = accountStore.getSelfAccount();
+    const lang = appStore.config.language;
+    const submitKey = chatStore.config.submitKey;
+
     return (
         <>
             <Container>
@@ -44,12 +53,12 @@ const SettingPage = () => {
 
                 <SettingItemBuilder title={Locales.Settings.Email.Title} description={Locales.Settings.Email.SubTitle}>
                     <Text ta="center" c="dimmed" fz="sm">
-                        email
+                        {selfAccount?.email ?? Locales.Settings.Email.NoEmail}
                     </Text>
                 </SettingItemBuilder>
 
                 <SettingItemBuilder title={Locales.Settings.Lang.Name}>
-                    <Select value={"cn"} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
+                    <Select value={lang} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
                 </SettingItemBuilder>
 
             </Container>
@@ -65,7 +74,7 @@ const SettingPage = () => {
                 </SettingItemBuilder>
 
                 <SettingItemBuilder title={Locales.Settings.SendKey}>
-                    <Select value={"cn"} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
+                    <Select value={submitKey} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
                 </SettingItemBuilder>
 
                 <SettingItemBuilder title={Locales.Settings.Theme}>
@@ -100,17 +109,17 @@ const SettingPage = () => {
                     <TextInput withAsterisk />
                 </SettingItemBuilder>
 
-                <SettingItemBuilder title={Locales.Settings.Model}>
-                    <Select value={"cn"} data={[]} />
-                </SettingItemBuilder>
 
                 <SettingItemBuilder title={Locales.Settings.Temperature.Title} description={Locales.Settings.Temperature.SubTitle}>
-                    <Slider
-                        sx={{ width: 200 }}
-                        defaultValue={40}
-                        min={10}
-                        max={90}
-                    />
+                    <Group>
+                        <Slider
+                            sx={{ width: 200 }}
+                            defaultValue={40}
+                            min={10}
+                            max={90}
+                        />
+                        <Text>value</Text>
+                    </Group>
                 </SettingItemBuilder>
 
 

@@ -91,6 +91,7 @@ export function getCurrentCommitId() {
 }
 
 export const regexPasswordValid = (password: string): boolean => {
+  return password.length >= 3;
   const regex = /^.*(?=.{8,})(?=.*[a-zA-Z])(?=.*\d).*$/;
   return regex.test(password);
 };

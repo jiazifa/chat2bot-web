@@ -46,6 +46,7 @@ const cn = {
     Email: {
       Title: "邮箱",
       SubTitle: "用于接收更新通知",
+      NoEmail: "未设置邮箱",
     },
     Actions: {
       ClearAll: "清除所有数据",
