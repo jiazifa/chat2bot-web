@@ -1,11 +1,12 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
-import Locale from '../locales';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import Locale from "../locales";
 
-type Role = 'user' | 'assistant' | 'system';
+type Role = "user" | "assistant" | "system";
 
 export interface ChatConversation {
   id: number;
+  uuid: string;
   topic: string;
   memoryPrompt: string;
   messages: Message[];
@@ -22,17 +23,17 @@ export type Message = {
 };
 
 export enum SubmitKey {
-  Enter = 'Enter',
-  CtrlEnter = 'Ctrl + Enter',
-  ShiftEnter = 'Shift + Enter',
-  AltEnter = 'Alt + Enter',
-  MetaEnter = 'Meta + Enter',
+  Enter = "Enter",
+  CtrlEnter = "Ctrl + Enter",
+  ShiftEnter = "Shift + Enter",
+  AltEnter = "Alt + Enter",
+  MetaEnter = "Meta + Enter",
 }
 
 export enum Theme {
-  Auto = 'auto',
-  Dark = 'dark',
-  Light = 'light',
+  Auto = "auto",
+  Dark = "dark",
+  Light = "light",
 }
 
 export interface ChatConfig {
@@ -54,33 +55,33 @@ export interface ChatConfig {
   };
 }
 
-export type ModelConfig = ChatConfig['modelConfig'];
+export type ModelConfig = ChatConfig["modelConfig"];
 
 const ENABLE_GPT4 = true;
 
 export const ALL_MODELS = [
   {
-    name: 'gpt-4',
+    name: "gpt-4",
     available: ENABLE_GPT4,
   },
   {
-    name: 'gpt-4-0314',
+    name: "gpt-4-0314",
     available: ENABLE_GPT4,
   },
   {
-    name: 'gpt-4-32k',
+    name: "gpt-4-32k",
     available: ENABLE_GPT4,
   },
   {
-    name: 'gpt-4-32k-0314',
+    name: "gpt-4-32k-0314",
     available: ENABLE_GPT4,
   },
   {
-    name: 'gpt-3.5-turbo',
+    name: "gpt-3.5-turbo",
     available: true,
   },
   {
-    name: 'gpt-3.5-turbo-0301',
+    name: "gpt-3.5-turbo-0301",
     available: true,
   },
 ];
@@ -89,7 +90,7 @@ export function isValidModel(name: string) {
 }
 
 export function isValidNumber(x: number, min: number, max: number) {
-  return typeof x === 'number' && x <= max && x >= min;
+  return typeof x === "number" && x <= max && x >= min;
 }
 
 export function filterConfig(config: ModelConfig): Partial<ModelConfig> {
@@ -126,14 +127,14 @@ const DEFAULT_CONFIG: ChatConfig = {
   compressMessageLengthThreshold: 1000,
   sendBotMessages: true as boolean,
   submitKey: SubmitKey.CtrlEnter as SubmitKey,
-  avatar: '1f603',
+  avatar: "1f603",
   fontSize: 14,
   theme: Theme.Auto as Theme,
 
   disablePromptHint: false,
 
   modelConfig: {
-    model: 'gpt-3.5-turbo',
+    model: "gpt-3.5-turbo",
     temperature: 1,
     max_tokens: 2000,
     presence_penalty: 0,
@@ -153,11 +154,12 @@ function createEmptyConversation(): ChatConversation {
 
   return {
     id: Date.now(),
+    uuid: "",
     topic: DEFAULT_TOPIC,
-    memoryPrompt: '',
+    memoryPrompt: "",
     messages: [
       {
-        role: 'assistant',
+        role: "assistant",
         content: Locale.Store.BotHello,
         date: createDate,
       },
@@ -204,7 +206,7 @@ function countMessages(msgs: Message[]) {
   return msgs.reduce((pre, cur) => pre + cur.content.length, 0);
 }
 
-const LOCAL_KEY = 'chat-next-web-store';
+const LOCAL_KEY = "chat-next-web-store";
 
 export const useChatStore = create<ChatStore>()(
   persist(
@@ -237,7 +239,9 @@ export const useChatStore = create<ChatStore>()(
       newConversation() {
         set((state) => ({
           currentConversationIndex: 0,
-          conversations: [createEmptyConversation()].concat(state.conversations),
+          conversations: [createEmptyConversation()].concat(
+            state.conversations
+          ),
         }));
       },
 
@@ -264,7 +268,10 @@ export const useChatStore = create<ChatStore>()(
           const { conversations, currentConversationIndex } = state;
           let nextIndex = currentConversationIndex;
           if (conversations.length <= 1) {
-            return { currentConversationIndex: 0, conversations: [createEmptyConversation()] };
+            return {
+              currentConversationIndex: 0,
+              conversations: [createEmptyConversation()],
+            };
           }
           conversations.splice(index, 1);
           if (nextIndex === index) {
@@ -286,16 +293,20 @@ export const useChatStore = create<ChatStore>()(
           countMessages(conversation.messages) > SUMMARIZE_MIN_LEN
         ) {
           // 精简对话
-          throw new Error('Not implemented');
+          throw new Error("Not implemented");
         }
         const { config } = get();
-        let toBeSummarizedMsgs = conversation.messages.slice(conversation.lastSummarizeIndex);
+        let toBeSummarizedMsgs = conversation.messages.slice(
+          conversation.lastSummarizeIndex
+        );
         const historyMsgLength = countMessages(toBeSummarizedMsgs);
         if (historyMsgLength > 4000) {
           // 字数太多了，切割后再精简
-          toBeSummarizedMsgs = toBeSummarizedMsgs.slice(-config.historyMessageCount);
+          toBeSummarizedMsgs = toBeSummarizedMsgs.slice(
+            -config.historyMessageCount
+          );
         }
-        throw new Error('Not implemented');
+        throw new Error("Not implemented");
       },
     }),
     { name: LOCAL_KEY, version: 1 }

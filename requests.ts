@@ -1,4 +1,5 @@
 import { notifications } from "@mantine/notifications";
+import { Message } from "./store";
 
 class HTTPError extends Error {
   constructor(message: string) {
@@ -131,6 +132,49 @@ export async function requestRegister(
 ): Promise<any> {
   const path = `/auth/register`;
   const resp = await POST(path, { email, password });
+  const data = resp.data;
+  return data;
+}
+
+export async function requestLogout(): Promise<any> {
+  const path = `/auth/logout`;
+  const resp = await AUTHPOST(path);
+  const data = resp.data;
+  return data;
+}
+
+// chat prompt
+
+interface ChatRequest {
+  messages: Message[];
+}
+
+const _makeChatRequestParam = (
+  messages: Message[],
+  options?: {
+    filterBot?: boolean;
+    stream?: boolean;
+  }
+): ChatRequest => {
+  let sendMessage = messages.filter((v) => ({
+    role: v.role,
+    content: v.content,
+  }));
+  if (options?.filterBot) {
+    sendMessage = sendMessage.filter((v) => v.role !== "assistant");
+  }
+  return {
+    messages: sendMessage,
+  };
+};
+
+export async function requestChat(
+  messages: Message[],
+  conversation_idf: string
+) {
+  const req = _makeChatRequestParam(messages, { filterBot: true });
+  const path = "/gpt/competion/";
+  const resp = await AUTHPOST(path, { ...req, conversation: conversation_idf });
   const data = resp.data;
   return data;
 }

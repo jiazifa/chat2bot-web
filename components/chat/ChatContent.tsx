@@ -3,39 +3,6 @@ import { Message } from '../../store';
 import dayjs from 'dayjs';
 import BotIcon from '../../icons/bot.svg'
 
-const messages: Message[] = [
-    {
-        content: "Lorem ipsum dolor sit, <a>amet</a> consectetur adipisicing",
-        date: dayjs('2023-03-31').format('DD/MM/YYYY'),
-        role: 'user',
-    },
-    {
-        content: "Bot: Lorem ipsum dolor sit, <a>amet</a> consectetur adipisicing",
-        date: dayjs('2023-03-30').format('DD/MM/YYYY'),
-        role: 'assistant',
-    },
-    {
-        content: "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Accusamus eveniet, nam modi quas amet voluptatem tempora possimus vero ducimus pariatur atque. Voluptatibus voluptates amet alias distinctio similique perferendis accusamus quo?",
-        date: dayjs('2023-03-31').format('DD/MM/YYYY'),
-        role: 'user',
-    },
-    {
-        content: "Bot: Lorem ipsum dolor sit, <a>amet</a> consectetur adipisicing",
-        date: dayjs('2023-03-30').format('DD/MM/YYYY'),
-        role: 'assistant',
-    },
-    {
-        content: "Bot: Lorem ipsum dolor sit, <a>amet</a> consectetur adipisicing",
-        date: dayjs('2023-03-30').format('DD/MM/YYYY'),
-        role: 'assistant',
-    },
-    {
-        content: "Bot: Lorem ipsum dolor sit, <a>amet</a> consectetur adipisicing",
-        date: dayjs('2023-03-30').format('DD/MM/YYYY'),
-        role: 'assistant',
-    },
-];
-
 const ChatContentFromBotBuilder = (content: string) => {
     return (
         <TypographyStylesProvider>
@@ -47,7 +14,7 @@ const ChatContentFromBotBuilder = (content: string) => {
 const ChatItemBuilder = (message: Message) => {
     return (
         <div key={message.date}>
-            <Paper shadow="md">
+            <Paper shadow='sm'>
                 <Group p="0.5rem" position={message.role === 'user' ? 'right' : 'left'}>
                     <Flex direction={message.role === 'user' ? "row-reverse" : "row"} gap='sm'>
                         {message.role === 'user' ? <Avatar radius="xl" /> : <Avatar radius="xl"> <BotIcon /> </Avatar>}
@@ -62,17 +29,21 @@ const ChatItemBuilder = (message: Message) => {
                 <Text>
                     {message.content}
                 </Text>
+                <Space h='0.5rem' />
             </Paper>
         </div >
     );
 };
 
-const ChatContent = () => {
+interface ChatContentProps {
+    messages: Message[];
+};
+
+const ChatContent = ({ messages }: ChatContentProps) => {
     const chats = messages.map((message) => ChatItemBuilder(message));
     return (
         <>
             <Stack>
-                <Box sx={{ height: 100 }} />
                 {chats}
                 <Box sx={{ height: 100 }} />
             </Stack>
