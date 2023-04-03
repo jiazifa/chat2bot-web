@@ -5,11 +5,11 @@ import { useChatStore } from '../../store';
 import Locales from '../../locales';
 import SendWhiteIcon from '../../icons/send-white.svg';
 
-interface ChatInputProps {
-    enabled: boolean;
+interface ChatInputPanelProps {
+    // enabled: boolean;
 };
 
-const ChatInput = ({ enabled }: ChatInputProps) => {
+const ChatInputPanel = ({ }: ChatInputPanelProps) => {
     const submitKey = useChatStore((state) => state.config.submitKey);
     const [value, setValue] = useState<string>('');
     const ref = useRef<HTMLTextAreaElement>(null);
@@ -26,7 +26,7 @@ const ChatInput = ({ enabled }: ChatInputProps) => {
                     minRows={3}
                     maxRows={4}
 
-                    disabled={!enabled}
+                    disabled={true}
                     placeholder={Locales.Chat.Input(submitKey)}
                     autosize
 
@@ -44,4 +44,4 @@ const ChatInput = ({ enabled }: ChatInputProps) => {
     );
 };
 
-export default ChatInput;
+export default ChatInputPanel;

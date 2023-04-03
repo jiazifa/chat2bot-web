@@ -13,7 +13,7 @@ export default function HomePage() {
 
   const gridItems = data.map((item) => {
     return (
-      <CardGradient icon={<BotIcon />} title={item.title} description={item.description} />
+      <CardGradient key={item.title} icon={<BotIcon />} title={item.title} description={item.description} />
     )
   });
   return (
