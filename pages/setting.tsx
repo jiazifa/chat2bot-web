@@ -1,7 +1,7 @@
 import { Container, Flex, Group, Paper, SegmentedControl, Select, Slider, Space, Switch, Text, TextInput, Title } from "@mantine/core";
 import { ReactNode } from "react";
-import Locales from '../components/locales';
-import { useAccountStore, useAppStore, useChatStore } from "../components/store";
+import Locales from '../locales';
+import { useAccountStore, useAppStore, useChatStore } from "../store";
 
 const SettingItemBuilder = ({ children, title, description }: { children: ReactNode, title: string, description?: string }) => {
     return (

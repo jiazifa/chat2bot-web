@@ -1,8 +1,8 @@
 'use client';
 import { useRef } from 'react';
 import { Textarea } from '@mantine/core';
-import { useChatStore } from '../store';
-import Locales from '../locales';
+import { useChatStore } from '../../store';
+import Locales from '../../locales';
 
 const ChatInput = () => {
     const submitKey = useChatStore((state) => state.config.submitKey);

@@ -157,6 +157,11 @@ const cn = {
     EmailNotValid: "邮箱格式不正确",
     PasswordInvalid: "密码格式不正确",
   },
+  NavBar: {
+    Home: "主页",
+    Settings: "设置",
+    Logout: "退出登录",
+  },
 };
 
 export type LocaleType = typeof cn;

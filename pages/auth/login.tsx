@@ -21,7 +21,7 @@ import { useAccountStore } from '../../components/store';
 import { regexEmailValid, regexPasswordValid } from '../../components/utils';
 
 const LoginPage = () => {
-    const [email, setEmail] = useState("admin@email.com");
+    const [email, setEmail] = useState("804506054@qq.com");
     const [password, setPassword] = useState("admin");
     const store = useAccountStore();
 
@@ -44,6 +44,9 @@ const LoginPage = () => {
             return;
         }
         const data = await requestLogin(email, password);
+        if (!data) {
+            return;
+        }
         const account = {
             id: data.user_id,
             uuid: data.identifier,

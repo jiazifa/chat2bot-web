@@ -1,7 +1,7 @@
 import { ActionIcon, Avatar, Box, Flex, Group, Paper, Space, Stack, Text, Title, TypographyStylesProvider } from '@mantine/core';
-import { Message } from '../store';
+import { Message } from '../../store';
 import dayjs from 'dayjs';
-import BotIcon from '../icons/bot.svg'
+import BotIcon from '../../icons/bot.svg'
 
 const messages: Message[] = [
     {
@@ -49,7 +49,7 @@ const ChatItemBuilder = (message: Message) => {
         <div key={message.date}>
             <Paper shadow="md">
                 <Group p="0.5rem" position={message.role === 'user' ? 'right' : 'left'}>
-                    <Flex direction={message.role === 'user' ? "row-reverse" : "row"}>
+                    <Flex direction={message.role === 'user' ? "row-reverse" : "row"} gap='sm'>
                         {message.role === 'user' ? <Avatar radius="xl" /> : <Avatar radius="xl"> <BotIcon /> </Avatar>}
                         <div>
                             <Text size="sm">{message.role === 'user' ? "我" : "Bot"}</Text>
