@@ -11,8 +11,8 @@ import {
 import { notifications } from '@mantine/notifications';
 import Link from 'next/link';
 import { useState } from 'react';
-import Locales from '../../components/locales';
-import { regexEmailValid, regexPasswordValid } from '../../components/utils';
+import Locales from '../../locales';
+import { regexEmailValid, regexPasswordValid } from '../../utils/utils';
 
 const LoginPage = () => {
 

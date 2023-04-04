@@ -2,12 +2,12 @@
 
 import { useViewportSize } from '@mantine/hooks';
 import { Text, Container, Flex, Paper, ScrollArea, Stack, Title, Divider, Space, Box, Group, Button, createStyles, rem, ActionIcon } from '@mantine/core';
-import ChatContent from '../../components/chat/ChatContent';
-import ConversationList from '../../components/chat/ConversationList';
-import { ChatConversation, useChatStore } from '../../store';
-import ChatInputPanel from '../../components/chat/ChatInputPanel';
-import { useEffect, useState } from 'react';
-import Locales from '../../locales'
+import ChatContent from '../components/chat/ChatContent';
+import ConversationList from '../components/chat/ConversationList';
+import { ChatConversation, useChatStore } from '../store';
+import ChatInputPanel from '../components/chat/ChatInputPanel';
+import { useDebugValue, useEffect, useState } from 'react';
+import Locales from '../locales'
 import { IconPlus } from '@tabler/icons-react';
 
 const ChatPage = () => {
@@ -16,7 +16,10 @@ const ChatPage = () => {
     const [conversations, setConversations] = useState<ChatConversation[]>([]);
     const { currentConversationUuid } = chatStore;
     const [currentConversation, setCurrentConversation] = useState<ChatConversation | undefined>(undefined);
-
+    console.log('conversations', conversations)
+    console.log('currentConversationUuid', currentConversationUuid)
+    console.log('chatStore', chatStore)
+    useDebugValue(conversations)
     useEffect(() => {
         const conversations = chatStore.getConversations().sort((a, b) => b.lastUpdate.localeCompare(a.lastUpdate));
         setCurrentConversation(chatStore.currentConversation())

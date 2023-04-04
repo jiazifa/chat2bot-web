@@ -15,10 +15,10 @@ import dayjs from 'dayjs';
 import Link from 'next/link';
 import Router from 'next/router';
 import { useState } from 'react';
-import Locales from '../../components/locales';
-import { requestLogin } from '../../components/requests';
-import { useAccountStore } from '../../components/store';
-import { regexEmailValid, regexPasswordValid } from '../../components/utils';
+import Locales from '../../locales';
+import { requestLogin } from '../../utils/requests';
+import { useAccountStore } from '../../store';
+import { regexEmailValid, regexPasswordValid } from '../../utils/utils';
 
 const LoginPage = () => {
     const [email, setEmail] = useState("804506054@qq.com");
