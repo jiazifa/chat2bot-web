@@ -1,22 +1,60 @@
 'use client';
 import { useRef, useState } from 'react';
 import { Button, Flex, Textarea } from '@mantine/core';
-import { useChatStore } from '../../store';
+import { SubmitKey, useChatStore } from '../../store';
 import Locales from '../../locales';
 import SendWhiteIcon from '../../icons/send-white.svg';
+import { notifications } from '@mantine/notifications';
+
+function useSubmitHandler() {
+    const config = useChatStore((state) => state.config);
+    const submitKey = config.submitKey;
+
+    const shouldSubmit = (e: KeyboardEvent) => {
+        if (e.key !== "Enter") return false;
+
+        return (
+            (config.submitKey === SubmitKey.AltEnter && e.altKey) ||
+            (config.submitKey === SubmitKey.CtrlEnter && e.ctrlKey) ||
+            (config.submitKey === SubmitKey.ShiftEnter && e.shiftKey) ||
+            (config.submitKey === SubmitKey.MetaEnter && e.metaKey) ||
+            (config.submitKey === SubmitKey.Enter &&
+                !e.altKey &&
+                !e.ctrlKey &&
+                !e.shiftKey &&
+                !e.metaKey)
+        );
+    };
+
+    return {
+        submitKey,
+        shouldSubmit,
+    };
+}
 
 interface ChatInputPanelProps {
+    height: number;
     // enabled: boolean;
 };
 
-const ChatInputPanel = ({ }: ChatInputPanelProps) => {
-    const submitKey = useChatStore((state) => state.config.submitKey);
-    const [value, setValue] = useState<string>('');
+const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
+    const [inputContent, setInputContent] = useState<string>('');
     const ref = useRef<HTMLTextAreaElement>(null);
+    const { submitKey, shouldSubmit } = useSubmitHandler();
+    const [isLoading, setIsLoading] = useState<boolean>(false);
 
-    // const onInputKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    // };
+    const onInputKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        if (shouldSubmit(event.nativeEvent)) {
+            onSubmitAction()
+            event.preventDefault();
+        }
+    };
 
+    const onSubmitAction = () => {
+        const content = inputContent;
+        setIsLoading(true);
+        setInputContent('');
+    }
 
     return (
         <>
@@ -26,17 +64,17 @@ const ChatInputPanel = ({ }: ChatInputPanelProps) => {
                     minRows={3}
                     maxRows={4}
 
-                    disabled={true}
+                    disabled={false}
                     placeholder={Locales.Chat.Input(submitKey)}
                     autosize
 
-                    // value={value}
-                    // onChange={(event) => setValue(event.currentTarget.value)}
+                    value={inputContent}
+                    onChange={(event) => setInputContent(event.target.value)}
 
-                    // onKeyDown={(event) => onInputKeyDown(event)}
+                    onKeyDown={(event) => onInputKeyDown(event)}
                     ref={ref}
                 />
-                <Button w={100}>
+                <Button w={100} loading={isLoading} disabled={inputContent.length === 0} onClick={() => onSubmitAction()}>
                     <SendWhiteIcon />
                 </Button>
             </Flex>

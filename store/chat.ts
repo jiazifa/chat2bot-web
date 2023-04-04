@@ -13,6 +13,7 @@ export interface ChatConversation {
   stat: ChatStat;
   lastUpdate: string;
   lastSummarizeIndex: number;
+  conversationStat: ConversationStat;
 }
 
 export type Message = {
@@ -147,14 +148,18 @@ export interface ChatStat {
   charCount: number;
 }
 
+export interface ConversationStat {
+  isLocal: boolean;
+}
+
 const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
 
-function createEmptyConversation(): ChatConversation {
+function createEmptyConversation(uid?: number): ChatConversation {
   const createDate = new Date().toLocaleString();
 
   return {
-    id: Date.now(),
-    uuid: "",
+    id: uid ?? 0,
+    uuid: `local_conversion_${uid ?? 0}`,
     topic: DEFAULT_TOPIC,
     memoryPrompt: "",
     messages: [
@@ -171,21 +176,26 @@ function createEmptyConversation(): ChatConversation {
     },
     lastUpdate: createDate,
     lastSummarizeIndex: 0,
+    conversationStat: {
+      isLocal: true,
+    },
   };
 }
 
 interface ChatStore {
   config: ChatConfig;
-  conversations: ChatConversation[];
-  currentConversationIndex: number;
+  _conversations: { [key: string]: ChatConversation };
+  currentConversationUuid: string;
+  _allConversationUuids: string[];
 
   getConfig: () => ChatConfig;
   resetConfig: () => void;
   updateConfig: (updater: (config: ChatConfig) => void) => void;
   clearAllData: () => void;
 
-  removeConversation: (index: number) => void;
-  selectConversation: (index: number) => void;
+  getConversations(): ChatConversation[];
+  removeConversation: (uuid: string) => void;
+  selectConversation: (uuid: string) => void;
   newConversation: () => void;
   currentConversation: () => ChatConversation;
   //   onNewMessage: (message: Message) => void;
@@ -212,8 +222,9 @@ export const useChatStore = create<ChatStore>()(
   persist(
     (set, get) => ({
       config: { ...DEFAULT_CONFIG },
-      conversations: [createEmptyConversation()],
-      currentConversationIndex: 0,
+      _conversations: { local_conversion_0: createEmptyConversation() },
+      currentConversationUuid: "local_conversion_0",
+      _allConversationUuids: ["local_conversion_0"],
 
       getConfig() {
         return get().config;
@@ -231,55 +242,79 @@ export const useChatStore = create<ChatStore>()(
       clearAllData() {
         set(() => ({
           config: { ...DEFAULT_CONFIG },
-          conversations: [createEmptyConversation()],
-          currentConversationIndex: 0,
+          _conversations: { local_conversion_0: createEmptyConversation() },
+          currentConversationUuid: "local_conversion_0",
         }));
+      },
+
+      getConversations(): ChatConversation[] {
+        const {
+          _conversations: conversations,
+          _allConversationUuids: allConversationUuids,
+        } = get();
+        return allConversationUuids.map((uuid) => conversations[uuid]);
       },
 
       newConversation() {
-        set((state) => ({
-          currentConversationIndex: 0,
-          conversations: [createEmptyConversation()].concat(
-            state.conversations
-          ),
-        }));
+        set((state) => {
+          const uid = state._allConversationUuids.length;
+          const newC = createEmptyConversation(uid);
+          const uuid = newC.uuid;
+          const newCvs = { ...state._conversations, [uuid]: newC };
+          return {
+            currentConversationUuid: uuid,
+            _allConversationUuids: state._allConversationUuids.concat(uuid),
+            _conversations: {
+              ...state._conversations,
+              [uuid]: newC,
+            },
+          };
+        });
       },
 
-      selectConversation(index) {
-        set(() => ({ currentConversationIndex: index }));
+      selectConversation(uuid: string) {
+        set(() => ({ currentConversationUuid: uuid }));
       },
 
       currentConversation() {
-        let index = get().currentConversationIndex;
-        const { conversations } = get();
-
-        if (index < 0 || index >= conversations.length) {
-          index = Math.min(conversations.length - 1, Math.max(0, index));
-          set(() => ({ currentConversationIndex: index }));
+        let uuid = get().currentConversationUuid;
+        const {
+          _conversations: conversations,
+          _allConversationUuids: allConversationUuids,
+        } = get();
+        if (!conversations[uuid]) {
+          uuid = allConversationUuids[0];
         }
-
-        const session = conversations[index];
-
-        return session;
+        return conversations[uuid];
       },
 
-      removeConversation(index) {
+      removeConversation(uuid: string) {
         set((state) => {
-          const { conversations, currentConversationIndex } = state;
-          let nextIndex = currentConversationIndex;
-          if (conversations.length <= 1) {
+          const {
+            _conversations: conversations,
+            currentConversationUuid,
+            _allConversationUuids: allConversationUuids,
+          } = state;
+          if (allConversationUuids.length <= 1) {
+            const c = createEmptyConversation();
+            const cuuid = c.uuid;
             return {
-              currentConversationIndex: 0,
-              conversations: [createEmptyConversation()],
+              currentConversationUuid: c.uuid,
+              _conversations: { [cuuid]: c },
+              _allConversationUuids: [c.uuid],
             };
           }
-          conversations.splice(index, 1);
-          if (nextIndex === index) {
-            nextIndex -= 1;
+          let nextConversationUuid = currentConversationUuid;
+          if (currentConversationUuid === uuid) {
+            nextConversationUuid = allConversationUuids[0];
           }
+          delete conversations[uuid];
+
+          allConversationUuids.splice(allConversationUuids.indexOf(uuid), 1);
           return {
-            conversations,
-            currentConversationIndex: nextIndex,
+            _conversations: conversations,
+            _allConversationUuids: allConversationUuids,
+            currentConversationUuid: nextConversationUuid,
           };
         });
       },

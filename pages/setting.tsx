@@ -1,3 +1,5 @@
+'use client';
+
 import { Container, Flex, Group, Paper, SegmentedControl, Select, Slider, Space, Switch, Text, TextInput, Title } from "@mantine/core";
 import { ReactNode } from "react";
 import Locales from '../locales';

@@ -1,27 +1,45 @@
 'use client';
 
 import { useViewportSize } from '@mantine/hooks';
-import { Text, Container, Flex, Paper, ScrollArea, Stack, Title, Divider, Space, Box, Group, Button, createStyles, rem } from '@mantine/core';
+import { Text, Container, Flex, Paper, ScrollArea, Stack, Title, Divider, Space, Box, Group, Button, createStyles, rem, ActionIcon } from '@mantine/core';
 import ChatContent from '../../components/chat/ChatContent';
 import ConversationList from '../../components/chat/ConversationList';
-import { useChatStore } from '../../store';
+import { ChatConversation, useChatStore } from '../../store';
 import ChatInputPanel from '../../components/chat/ChatInputPanel';
-
-
+import { useEffect, useState } from 'react';
+import Locales from '../../locales'
+import { IconPlus } from '@tabler/icons-react';
 
 const ChatPage = () => {
     const chatStore = useChatStore();
-    let conversations = chatStore.conversations;
-    const currentConversationId = chatStore.currentConversation().id;
-    const currentConversation = chatStore.currentConversation();
-    conversations = conversations.concat(conversations)
-    conversations = conversations.concat(conversations)
-    conversations = conversations.concat(conversations)
-    const onConversationClick = (index: number) => {
-        chatStore.selectConversation(index)
+
+    const [conversations, setConversations] = useState<ChatConversation[]>([]);
+    const { currentConversationUuid } = chatStore;
+    const [currentConversation, setCurrentConversation] = useState<ChatConversation | undefined>(undefined);
+
+    useEffect(() => {
+        const conversations = chatStore.getConversations().sort((a, b) => b.lastUpdate.localeCompare(a.lastUpdate));
+        setCurrentConversation(chatStore.currentConversation())
+        setConversations(conversations)
+    }, [])
+
+    const onConversationClick = (uuid: string) => {
+        console.log('onConversationClick', uuid)
+        chatStore.selectConversation(uuid)
+        setCurrentConversation(chatStore.currentConversation())
     };
-    const onConversationDelete = (index: number) => {
-        chatStore.removeConversation(index)
+    const onConversationDelete = (uuid: string) => {
+        chatStore.removeConversation(uuid)
+        const convers = chatStore.getConversations().sort((a, b) => b.lastUpdate.localeCompare(a.lastUpdate));
+        setConversations(convers)
+        setCurrentConversation(chatStore.currentConversation())
+    };
+
+    const onNewConversation = () => {
+        chatStore.newConversation()
+        const convers = chatStore.getConversations().sort((a, b) => b.lastUpdate.localeCompare(a.lastUpdate));
+        setConversations(convers)
+        setCurrentConversation(chatStore.currentConversation())
     };
 
     const { height } = useViewportSize();
@@ -38,21 +56,21 @@ const ChatPage = () => {
             <Container sx={{ height: heightWithoutHeader }} >
                 <Flex h='100%'>
                     <Stack sx={{ width: sidebarWidth, paddingRight: 20 }}>
-                        <Paper sx={{ position: 'relative', height: sideBarHeaderHeight, paddingTop: 10 }}>
+                        <Paper key={'chat-side-header'} sx={{ position: 'relative', height: sideBarHeaderHeight, paddingTop: 10 }}>
                             <Title>Title</Title>
                         </Paper>
-                        <ScrollArea type='hover' sx={{ height: chatSideBarBodyHeight }}>
+                        <ScrollArea key={'chat-side-list'} type='hover' sx={{ height: chatSideBarBodyHeight }}>
                             <ConversationList
                                 conversations={conversations}
-                                currentConversationId={currentConversationId}
+                                currentConversationUuid={currentConversationUuid}
                                 onConversationClick={(cid) => onConversationClick(cid)}
                                 onConversationDelete={(cid) => onConversationDelete(cid)}
                             />
                         </ScrollArea>
-                        <Paper sx={{ position: 'absolute', bottom: 0, height: sideBarMenuHeight }}>
-                            <Group>
-                                <Button>
-                                    Test
+                        <Paper key={'chat-side-menu'} sx={{ position: 'absolute', bottom: 0, height: sideBarMenuHeight, width: sidebarWidth, paddingRight: 20 }}>
+                            <Group position='right'>
+                                <Button leftIcon={<IconPlus />} color='white' onClick={() => onNewConversation()}>
+                                    {Locales.Home.NewChat}
                                 </Button>
                             </Group>
                         </Paper>
@@ -70,33 +88,22 @@ const ChatPage = () => {
                                 height: sideBarHeaderHeight,
                             }}
                         >
-                            {/* <Title order={2}>
-                                {currentConversation.topic}
+                            <Title order={2}>
+                                {currentConversation?.topic}
                             </Title>
                             <Text c="dimmed">
-                                {currentConversation.lastUpdate}
-                            </Text> */}
+                                {currentConversation?.lastUpdate}
+                            </Text>
                         </Paper>
-                        {/* <ScrollArea p="xs"
+                        <ScrollArea p="xs"
                             scrollbarSize={8}
                             sx={{ height: chatSideBarBodyHeight }}
                             type='hover'>
-                            <ChatContent messages={currentConversation.messages} />
-                        </ScrollArea> */}
+                            <ChatContent messages={currentConversation?.messages ?? []} />
+                        </ScrollArea>
 
-                        {/* <ChatInputPanel enabled>
-
-                        </ChatInputPanel> */}
-                        {/* <Paper sx={{
-                            position: 'absolute',
-                            bottom: 0,
-                            left: 0,
-                            right: 0,
-                            height: chatInputContentHeight
-                        }}>
-                            <ChatInput enabled />
-                        </Paper> */}
-
+                        <ChatInputPanel height={chatInputContentHeight} />
+                        <Space />
                     </Stack>
                 </Flex>
             </Container >
