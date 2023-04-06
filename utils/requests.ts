@@ -1,5 +1,5 @@
 import { notifications } from "@mantine/notifications";
-import { Message } from "./store";
+import { Message } from "../store";
 
 class HTTPError extends Error {
   constructor(message: string) {

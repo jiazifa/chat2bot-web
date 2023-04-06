@@ -1,13 +1,13 @@
 'use client';
 import { useRef, useState } from 'react';
 import { Button, Flex, Textarea } from '@mantine/core';
-import { SubmitKey, useChatStore } from '../../store';
+import { SubmitKey, useAppStore, useChatStore } from '../../store';
 import Locales from '../../locales';
 import SendWhiteIcon from '../../icons/send-white.svg';
 import { notifications } from '@mantine/notifications';
 
 function useSubmitHandler() {
-    const config = useChatStore((state) => state.config);
+    const config = useAppStore((state) => state.chatConfig);
     const submitKey = config.submitKey;
 
     const shouldSubmit = (e: KeyboardEvent) => {
@@ -34,13 +34,14 @@ function useSubmitHandler() {
 
 interface ChatInputPanelProps {
     height: number;
-    // enabled: boolean;
 };
 
 const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
+    const chatStore = useChatStore();
+
     const [inputContent, setInputContent] = useState<string>('');
-    const ref = useRef<HTMLTextAreaElement>(null);
     const { submitKey, shouldSubmit } = useSubmitHandler();
+    const ref = useRef<HTMLTextAreaElement>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
 
     const onInputKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -52,19 +53,21 @@ const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
 
     const onSubmitAction = () => {
         const content = inputContent;
-        setIsLoading(true);
+        chatStore.onUserInput(content).then(() => {
+            setIsLoading(false);
+        });
         setInputContent('');
     }
 
     return (
         <>
-            <Flex gap='md' align='center'>
+            <Flex gap='md' align='center' h={height}>
                 <Textarea
                     w={1000}
                     minRows={3}
                     maxRows={4}
 
-                    disabled={false}
+                    disabled={isLoading}
                     placeholder={Locales.Chat.Input(submitKey)}
                     autosize
 
@@ -74,7 +77,7 @@ const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
                     onKeyDown={(event) => onInputKeyDown(event)}
                     ref={ref}
                 />
-                <Button w={100} loading={isLoading} disabled={inputContent.length === 0} onClick={() => onSubmitAction()}>
+                <Button w={100} disabled={inputContent.length === 0 || isLoading} onClick={() => onSubmitAction()}>
                     <SendWhiteIcon />
                 </Button>
             </Flex>

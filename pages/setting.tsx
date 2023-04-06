@@ -45,7 +45,7 @@ const SettingPage = () => {
     const appStore = useAppStore();
 
     const selfAccount = accountStore.getSelfAccount();
-    const lang = appStore.config.language;
+    const lang = appStore.appConfig.language;
     const submitKey = chatStore.config.submitKey;
 
     return (

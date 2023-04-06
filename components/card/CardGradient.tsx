@@ -31,12 +31,13 @@ interface CardGradientProps {
     icon?: React.ReactNode;
     title: string;
     description: string;
+    onClick: () => void;
 }
 
-export function CardGradient({ icon, title, description }: CardGradientProps) {
+export function CardGradient({ icon, title, description, onClick }: CardGradientProps) {
     const { classes } = useStyles();
     return (
-        <Paper withBorder radius="md" className={classes.card}>
+        <Paper withBorder radius="md" className={classes.card} onClick={() => onClick()}>
             <Text fz='lg' fw='700' lineClamp={2}>
                 {title}
             </Text>

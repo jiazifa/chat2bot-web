@@ -1,7 +1,10 @@
+'use client';
+
 import { ActionIcon, Avatar, Box, Flex, Group, Paper, Space, Stack, Text, Title, TypographyStylesProvider } from '@mantine/core';
-import { Message } from '../../store';
+import { Message, useChatStore } from '../../store';
 import dayjs from 'dayjs';
 import BotIcon from '../../icons/bot.svg'
+import { useEffect, useState } from 'react';
 
 const ChatContentFromBotBuilder = (content: string) => {
     return (
@@ -36,10 +39,17 @@ const ChatItemBuilder = (message: Message) => {
 };
 
 interface ChatContentProps {
-    messages: Message[];
+
 };
 
-const ChatContent = ({ messages }: ChatContentProps) => {
+const ChatContent = ({ }: ChatContentProps) => {
+    const conversation = useChatStore((state) => state.currentConversation());
+    const [messages, setMessages] = useState<Message[]>([]);
+    useEffect(() => {
+        if (conversation) {
+            setMessages(conversation.messages);
+        }
+    }, [conversation]);
     const chats = messages.map((message) => ChatItemBuilder(message));
     return (
         <>

@@ -1,6 +1,6 @@
 import { Container, SimpleGrid } from '@mantine/core';
+import Router from 'next/router';
 import { CardGradient } from '../components/card';
-import { ColorSchemeToggle } from '../components/ColorSchemeToggle/ColorSchemeToggle';
 import BotIcon from '../icons/bot.svg';
 
 const data = [{ "title": "The Art of War Lorem, ipsum dolor sit amet consectetur adipisicing elit. Eum vitae, odit culpa voluptatibus expedita doloremque doloribus, rem eos dolorem iure dolor delectus voluptatem. Tempore soluta, nihil molestias perspiciatis fuga quod.", "description": "test" },
@@ -11,16 +11,20 @@ const data = [{ "title": "The Art of War Lorem, ipsum dolor sit amet consectetur
 
 export default function HomePage() {
 
+  const onItemClicked = (item: any) => {
+    console.log(item)
+    Router.push('/chat/')
+  }
   const gridItems = data.map((item) => {
     return (
-      <CardGradient key={item.title} icon={<BotIcon />} title={item.title} description={item.description} />
+      <CardGradient key={item.title} icon={<BotIcon />} title={item.title} description={item.description} onClick={() => onItemClicked(item)} />
     )
   });
   return (
     <>
       <Container>
         <SimpleGrid
-          cols={2}
+          cols={3}
           spacing="md"
           breakpoints={[
             { maxWidth: '62rem', cols: 3, spacing: 'md' },
