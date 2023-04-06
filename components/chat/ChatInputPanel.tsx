@@ -1,13 +1,13 @@
 'use client';
 import { useRef, useState } from 'react';
 import { Button, Flex, Textarea } from '@mantine/core';
-import { SubmitKey, useAppStore, useChatStore } from '../../store';
+import { SubmitKey, useChatStore } from '../../store';
 import Locales from '../../locales';
 import SendWhiteIcon from '../../icons/send-white.svg';
 import { notifications } from '@mantine/notifications';
 
 function useSubmitHandler() {
-    const config = useAppStore((state) => state.chatConfig);
+    const config = useChatStore((state) => state.chatConfig);
     const submitKey = config.submitKey;
 
     const shouldSubmit = (e: KeyboardEvent) => {

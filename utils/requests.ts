@@ -46,6 +46,7 @@ async function request(
   if (r.code != 200) {
     if (r.msg) {
       notifications.show({ title: r.msg, color: "red", message: r.msg });
+      Promise.reject(r);
     }
   }
   return r;
@@ -68,8 +69,8 @@ async function POST(
 
 function getAuthHeader(): { [key: string]: string } {
   let token = localStorage.getItem("token");
-  if (token === undefined) {
-    token = "";
+  if (token === null) {
+    return {};
   }
   token = `Bearer ${token}`;
   const headers = {
@@ -86,9 +87,18 @@ function getJsonHeader(): { [key: string]: string } {
 
 async function AUTHGET(path: string): Promise<ResponseModel> {
   const headers = getAuthHeader();
+  if (headers["Authorization"] === undefined) {
+    notifications.show({
+      title: "请先登录",
+      color: "red",
+      message: "请先登录",
+    });
+    return Promise.reject({ code: 400, msg: "请先登录" });
+  }
+
   return request(path, {
     method: "GET",
-    headers: { ...getJsonHeader(), ...getAuthHeader() },
+    headers: { ...getJsonHeader(), ...headers },
   });
 }
 
@@ -97,10 +107,19 @@ async function AUTHPOST(
   data: Record<string, unknown> | undefined = {}
 ): Promise<ResponseModel> {
   const headers = getAuthHeader();
+  console.log(headers);
+  if (headers["Authorization"] === undefined) {
+    notifications.show({
+      title: "请先登录",
+      color: "red",
+      message: "请先登录",
+    });
+    return Promise.reject({ code: 400, msg: "请先登录" });
+  }
   return request(path, {
     method: "POST",
     body: JSON.stringify(data),
-    headers: { ...getJsonHeader(), ...getAuthHeader() },
+    headers: { ...getJsonHeader(), ...headers },
   });
 }
 
@@ -149,6 +168,11 @@ interface ChatRequest {
   messages: Message[];
 }
 
+interface ChatResponse {
+  conversation: string;
+  content: string;
+}
+
 const _makeChatRequestParam = (
   messages: Message[],
   options?: {
@@ -170,11 +194,11 @@ const _makeChatRequestParam = (
 
 export async function requestChat(
   messages: Message[],
-  conversation_idf: string
-) {
+  conversation_idf?: string
+): Promise<ChatResponse> {
   const req = _makeChatRequestParam(messages, { filterBot: true });
   const path = "/gpt/competion/";
   const resp = await AUTHPOST(path, { ...req, conversation: conversation_idf });
   const data = resp.data;
-  return data;
+  return data as ChatResponse;
 }
