@@ -300,7 +300,6 @@ export const useChatStore = create<ChatStore>()(
         onNewMessage: (message: Message) => {},
 
         onUserInput: async (content: string) => {
-          console.log("onUserInput", content);
           const timestamp = dayjs().valueOf();
           const userMessage = {
             role: "user",
@@ -332,7 +331,7 @@ export const useChatStore = create<ChatStore>()(
           }
           try {
             const resp = await requestChat(sendMessages, conversationIdf);
-
+            console.log("resp", resp);
             get().updateCurrentConversation((conversation) => {
               conversation.messages.pop();
               botMessage.stat = {
@@ -344,6 +343,7 @@ export const useChatStore = create<ChatStore>()(
               conversation.messages.push(botMessage);
             });
           } catch (e) {
+            console.log("error", e);
             get().updateCurrentConversation((conversation) => {
               conversation.messages.pop();
               // botMessage.stat = {

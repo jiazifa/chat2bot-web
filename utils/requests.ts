@@ -25,6 +25,7 @@ async function request(
   }
   const resp = await fetch(url, options);
   const r = await resp.json();
+  console.log(`request ${url} ${options.method} ${resp.status} response:`, r);
   if (r.code != 200) {
     if (r.code === 401) {
       localStorage.removeItem(TOKEN_KEY);
