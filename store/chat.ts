@@ -1,3 +1,4 @@
+import dayjs from "dayjs";
 import { create } from "zustand";
 import { persist, devtools, combine } from "zustand/middleware";
 import Locale from "../locales";
@@ -12,7 +13,7 @@ export interface ChatConversation {
   memoryPrompt: string;
   messages: Message[];
   stat: ChatStat;
-  lastUpdate: string;
+  lastUpdate: number;
   lastSummarizeIndex: number;
   conversationStat: ConversationStat;
 }
@@ -26,7 +27,7 @@ export type MessageStat = {
 export type Message = {
   role: Role;
   content: string;
-  date: string;
+  date: number;
   stat?: MessageStat;
 };
 
@@ -152,7 +153,7 @@ const DEFAULT_CHAT_CONFIG: ChatConfig = {
 const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
 
 function createEmptyConversation(uid?: number): ChatConversation {
-  const createDate = new Date().toLocaleString();
+  const timestamp = dayjs().valueOf();
 
   return {
     id: uid ?? 0,
@@ -163,7 +164,7 @@ function createEmptyConversation(uid?: number): ChatConversation {
       {
         role: "assistant",
         content: Locale.Store.BotHello,
-        date: createDate,
+        date: timestamp,
       },
     ],
     stat: {
@@ -171,7 +172,7 @@ function createEmptyConversation(uid?: number): ChatConversation {
       wordCount: 0,
       charCount: 0,
     },
-    lastUpdate: createDate,
+    lastUpdate: timestamp,
     lastSummarizeIndex: 0,
     conversationStat: {
       isLocal: true,
@@ -266,7 +267,6 @@ export const useChatStore = create<ChatStore>()(
             const { conversations, currentConversationUuid } = state;
             if (allUuids.length <= 1) {
               const c = createEmptyConversation();
-              const cuuid = c.uuid;
               return {
                 currentConversationUuid: c.uuid,
                 conversations: [c],
@@ -300,16 +300,18 @@ export const useChatStore = create<ChatStore>()(
         onNewMessage: (message: Message) => {},
 
         onUserInput: async (content: string) => {
+          console.log("onUserInput", content);
+          const timestamp = dayjs().valueOf();
           const userMessage = {
             role: "user",
             content,
-            date: new Date().toLocaleString(),
+            date: timestamp,
           } as Message;
 
           const botMessage = {
             role: "assistant",
             content: "",
-            date: new Date().toLocaleString(),
+            date: timestamp,
             stat: {
               streaming: true,
               isError: false,
@@ -330,6 +332,7 @@ export const useChatStore = create<ChatStore>()(
           }
           try {
             const resp = await requestChat(sendMessages, conversationIdf);
+
             get().updateCurrentConversation((conversation) => {
               conversation.messages.pop();
               botMessage.stat = {
@@ -343,14 +346,14 @@ export const useChatStore = create<ChatStore>()(
           } catch (e) {
             get().updateCurrentConversation((conversation) => {
               conversation.messages.pop();
-              botMessage.stat = {
-                streaming: false,
-                isError: true,
-                errorMsg: "Error",
-                ...botMessage.stat,
-              };
-              botMessage.content = `${JSON.stringify(e)}`;
-              conversation.messages.push(botMessage);
+              // botMessage.stat = {
+              //   streaming: false,
+              //   isError: true,
+              //   errorMsg: "Error",
+              //   ...botMessage.stat,
+              // };
+              // botMessage.content = `${JSON.stringify(e)}`;
+              // conversation.messages.push(botMessage);
             });
           }
         },
@@ -390,7 +393,7 @@ export const useChatStore = create<ChatStore>()(
           return {
             role: "system",
             content: Locale.Store.Prompt.History(memoryPrompt),
-            date: "",
+            date: dayjs().valueOf(),
           } as Message;
         },
 

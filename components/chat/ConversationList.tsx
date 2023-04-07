@@ -14,8 +14,9 @@ const ConversationList = ({ }: ConversationListProps) => {
     );
     const [conversations, setConversations] = useState<ChatConversation[]>([]);
     const [currentConversationUuid, setCurrentConversationUuid] = useState<string>("");
+
     useEffect(() => {
-        setConversations(store.conversations);
+        setConversations(store.conversations.sort((a, b) => b.lastUpdate - a.lastUpdate));
         setCurrentConversationUuid(store.currentConversationUuid);
     }, [store.conversations, store.currentConversationUuid]);
 
@@ -36,7 +37,7 @@ const ConversationList = ({ }: ConversationListProps) => {
                             {conversation.messages.length} 条内容
                         </Text>
                     </Stack>
-                    <Stack sx={{ paddingRight: "0.2rem" }}>
+                    <Stack sx={{ paddingRight: "0.5rem" }}>
                         <CloseButton onClick={() => removeConversation(conversation.uuid)} />
                     </Stack>
                 </Flex>

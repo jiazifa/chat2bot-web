@@ -25,6 +25,10 @@ const cn = {
       return inputHints;
     },
     Send: "发送",
+    Delete: {
+      CleanAll: "清空聊天记录",
+      CleanAllConfirm: "确认清空聊天记录？",
+    },
   },
   Export: {
     Title: "导出聊天记录为 Markdown",
@@ -137,6 +141,7 @@ const cn = {
   },
   Auth: {
     Welcome: "欢迎使用",
+    TokenMissed: "缺少 Token",
     AlreadyHaveAccount: "已有账号？",
     HaveNoAccount: "还没有账号？",
     GoRegister: "去注册",
@@ -161,6 +166,15 @@ const cn = {
     Home: "主页",
     Settings: "设置",
     Logout: "退出登录",
+  },
+  Common: {
+    OK: "确定",
+    Cancel: "取消",
+    Delete: "删除",
+    Edit: "编辑",
+    Save: "保存",
+    Close: "关闭",
+    Copy: "复制",
   },
 };
 

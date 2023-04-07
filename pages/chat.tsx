@@ -1,24 +1,22 @@
 'use client';
 
 import { useViewportSize } from '@mantine/hooks';
-import { Text, Container, Flex, Paper, ScrollArea, Stack, Title, Divider, Space, Box, Group, Button, createStyles, rem, ActionIcon } from '@mantine/core';
+import { Text, Container, Flex, Paper, ScrollArea, Stack, Title, Divider, Space, Box, Group, Button, createStyles, rem, ActionIcon, Modal, Dialog } from '@mantine/core';
 import ChatContent from '../components/chat/ChatContent';
 import ConversationList from '../components/chat/ConversationList';
 import { ChatConversation, useChatStore } from '../store';
 import ChatInputPanel from '../components/chat/ChatInputPanel';
 import { useDebugValue, useEffect, useState } from 'react';
 import Locales from '../locales'
-import { IconPlus } from '@tabler/icons-react';
-import { requestChat } from '../utils/requests';
+import { IconPlus, IconTrash } from '@tabler/icons-react';
+import AlertForm from '../components/card/AlertForm';
+import ChatContentHeader from '../components/chat/ChatContentHeader';
 
 
 const ChatPage = () => {
     const chatStore = useChatStore();
-    const [currentConversation, setCurrentConversation] = useState<ChatConversation | undefined>(undefined);
+    const [cleanAllConversationModalOpened, setCleanAllConversationModalOpened] = useState<boolean>(false);
 
-    useEffect(() => {
-        setCurrentConversation(chatStore.currentConversation());
-    }, [currentConversation]);
     const { height } = useViewportSize();
 
     const heightWithoutHeader = height - 60;
@@ -29,58 +27,69 @@ const ChatPage = () => {
     const chatSideBarBodyHeight = heightWithoutHeader - sideBarHeaderHeight - sideBarMenuHeight - 40;
     const chatInputContentHeight = 150;
 
-    return (
-        <Container sx={{ height: heightWithoutHeader }} >
-            <Flex h='100%'>
-                <Stack sx={{ width: sidebarWidth, paddingRight: 20 }}>
-                    <Paper key={'chat-side-header'} sx={{ position: 'relative', height: sideBarHeaderHeight, paddingTop: 10 }}>
-                        <Title>Title</Title>
-                    </Paper>
-                    <ScrollArea key={'chat-side-list'} type='hover' sx={{ height: chatSideBarBodyHeight }}>
-                        <ConversationList />
-                    </ScrollArea>
-                    <Paper key={'chat-side-menu'} sx={{ position: 'absolute', bottom: 0, height: sideBarMenuHeight, width: sidebarWidth, paddingRight: 20 }}>
-                        <Group position='right'>
-                            <Button leftIcon={<IconPlus />} color='white' onClick={() => chatStore.newConversation()}>
-                                {Locales.Home.NewChat}
-                            </Button>
-                        </Group>
-                    </Paper>
-                </Stack>
+    const handleDeleteAllConversation = () => {
+        chatStore.clearAllData();
+    };
 
-                <Stack
-                    sx={{
-                        position: 'relative',
-                        width: `calc(100% - ${sidebarWidth}px)`,
-                        paddingTop: 10,
-                    }}
-                >
-                    <Paper
+    return (
+        <>
+            <Modal opened={cleanAllConversationModalOpened} title={Locales.Chat.Delete.CleanAll} onClose={() => setCleanAllConversationModalOpened(false)}>
+                <AlertForm
+                    title={Locales.Chat.Delete.CleanAll}
+                    content={Locales.Chat.Delete.CleanAllConfirm}
+                    confirmText={Locales.Common.OK}
+                    cancelText={Locales.Common.Cancel}
+                    onCancel={() => setCleanAllConversationModalOpened(false)}
+                    onConfirm={() => {
+                        setCleanAllConversationModalOpened(false);
+                        handleDeleteAllConversation();
+                    }} />
+            </Modal>
+            <Container sx={{ height: heightWithoutHeader }} >
+                <Flex h='100%'>
+                    <Stack sx={{ width: sidebarWidth, paddingRight: 20 }}>
+                        <Paper key={'chat-side-header'} sx={{ position: 'relative', height: sideBarHeaderHeight, paddingTop: 10 }}>
+                            <Title>Title</Title>
+                        </Paper>
+                        <ScrollArea key={'chat-side-list'} type='hover' sx={{ height: chatSideBarBodyHeight }}>
+                            <ConversationList />
+                        </ScrollArea>
+                        <Paper key={'chat-side-menu'} sx={{ position: 'absolute', bottom: 0, height: sideBarMenuHeight, width: sidebarWidth, paddingRight: 20 }}>
+                            <Group position='right'>
+                                <Button color='white' onClick={() => setCleanAllConversationModalOpened(true)}>
+                                    <IconTrash />
+                                </Button>
+
+                                <Button leftIcon={<IconPlus />} color='white' onClick={() => chatStore.newConversation()}>
+                                    {Locales.Home.NewChat}
+                                </Button>
+                            </Group>
+                        </Paper>
+                    </Stack>
+
+                    <Stack
                         sx={{
-                            height: sideBarHeaderHeight,
+                            position: 'relative',
+                            width: `calc(100% - ${sidebarWidth}px)`,
+                            paddingTop: 10,
                         }}
                     >
-                        <Title order={2}>
-                            {currentConversation?.topic}
-                        </Title>
-                        <Text c="dimmed">
-                            {currentConversation?.lastUpdate}
-                        </Text>
-                    </Paper>
-                    <ScrollArea p="xs"
-                        scrollbarSize={8}
-                        sx={{ height: chatSideBarBodyHeight }}
-                        type='hover'>
-                        <ChatContent />
-                    </ScrollArea>
+                        <ChatContentHeader height={sideBarHeaderHeight} />
+                        <ScrollArea p="xs"
+                            scrollbarSize={8}
+                            sx={{ height: chatSideBarBodyHeight }}
+                            type='hover'>
+                            <ChatContent />
+                        </ScrollArea>
 
-                    <ChatInputPanel
-                        height={chatInputContentHeight}
-                    />
-                    <Space />
-                </Stack>
-            </Flex>
-        </Container >
+                        <ChatInputPanel
+                            height={chatInputContentHeight}
+                        />
+                        <Space />
+                    </Stack>
+                </Flex>
+            </Container >
+        </>
     );
 };
 

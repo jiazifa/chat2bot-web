@@ -1,4 +1,6 @@
-import { useState } from 'react';
+'use client';
+
+import React, { useEffect, useState } from 'react';
 import {
     createStyles,
     Header,
@@ -8,10 +10,15 @@ import {
     Paper,
     Transition,
     rem,
+    Avatar,
 } from '@mantine/core';
-import { useDisclosure } from '@mantine/hooks';
+import { useDisclosure, useWindowEvent } from '@mantine/hooks';
 import BotIcon from '../../icons/bot.svg';
-import Router from 'next/router';
+import Router, { useRouter } from 'next/router';
+import { ColorSchemeToggle } from '../ColorSchemeToggle/ColorSchemeToggle';
+import { Account, ACCOUNT_STAT_CHANGED_EVENT, useAccountStore } from '../../store';
+import Link from 'next/link';
+import Locales from '../../locales';
 
 const HEADER_HEIGHT = rem(60);
 
@@ -89,25 +96,52 @@ interface HeaderResponsiveProps {
 }
 
 export function HeaderResponsive({ links }: HeaderResponsiveProps) {
+
     const [opened, { toggle, close }] = useDisclosure(false);
     const [active, setActive] = useState(links[0].link);
     const { classes, cx } = useStyles();
 
-    const items = links.map((link) => (
-        <a
-            key={link.label}
-            href={link.link}
-            className={cx(classes.link, { [classes.linkActive]: active === link.link })}
-            onClick={(event) => {
-                setActive(link.link);
-                close();
-                event.preventDefault();
-                Router.push(link.link);
-            }}
-        >
-            {link.label}
-        </a>
-    ));
+    const accountStore = useAccountStore();
+
+    useWindowEvent(ACCOUNT_STAT_CHANGED_EVENT, () => {
+        setSelfAccount(accountStore.getSelfAccount());
+    })
+
+    const router = useRouter();
+    const isAuthPage = router.pathname.includes('/auth/');
+
+    const [selfAccount, setSelfAccount] = useState<Account | undefined>(undefined);
+
+    useEffect(() => {
+        setSelfAccount(accountStore.getSelfAccount());
+    }, []);
+
+    let items: React.ReactNode[] = []
+    if (isAuthPage) {
+        items = [< ColorSchemeToggle key='header-color-scheme-toggle' />]
+    } else {
+        items = links.map((link) => (
+            <a
+                key={link.label}
+                href={link.link}
+                className={cx(classes.link, { [classes.linkActive]: active === link.link })}
+                onClick={(event) => {
+                    setActive(link.link);
+                    close();
+                    event.preventDefault();
+                    Router.push(link.link);
+                }}
+            >
+                {link.label}
+            </a>
+        ));
+        items.push(< ColorSchemeToggle key='header-color-scheme-toggle' />)
+        if (selfAccount) {
+            items.push(<Avatar key='header-avatar' radius='xl'> {selfAccount.email.charAt(0)} </Avatar>)
+        } else {
+            items.push(<Link key='header-go-login' href='/auth/login/'>{Locales.Auth.GoLogin}</Link>)
+        }
+    }
 
     return (
         <Header height={HEADER_HEIGHT} className={classes.root}>

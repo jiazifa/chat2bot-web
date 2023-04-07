@@ -19,14 +19,15 @@ const DEFAULT_CONFIG: AccountConfig = {
 interface AccountStore {
   config: AccountConfig;
   selfAccountUuid: string;
-  selfAccountToken: string;
 
   getConfig(): AccountConfig;
   resetConfig(): void;
   updateConfig(updater: (config: AccountConfig) => void): void;
   clearAllData(): void;
 
-  getSelfAccount(): Account | null | undefined;
+  getSelfAccount(): Account | undefined;
+
+  getSelfAccountToken(): string | undefined;
 
   addAccount(account: Account): void;
   loginAccount(account: Account & { token: string }): void;
@@ -34,7 +35,9 @@ interface AccountStore {
 }
 
 const LOCAL_KEY = "chat-account-store";
-const TOKEN_KEY = "chat-account-token";
+export const TOKEN_KEY = "chat-account-token";
+
+export const ACCOUNT_STAT_CHANGED_EVENT = "account-stat-changed";
 
 export const useAccountStore = create<AccountStore>()(
   persist(
@@ -64,6 +67,10 @@ export const useAccountStore = create<AccountStore>()(
       },
 
       getSelfAccount() {
+        const token = localStorage.getItem(TOKEN_KEY) ?? "";
+        if (token.length === 0) {
+          return undefined;
+        }
         const { config, selfAccountUuid } = get();
         return config.accounts[selfAccountUuid];
       },
@@ -79,6 +86,7 @@ export const useAccountStore = create<AccountStore>()(
       loginAccount(account) {
         this.addAccount(account);
         localStorage.setItem(TOKEN_KEY, account.token);
+        window.dispatchEvent(new Event(ACCOUNT_STAT_CHANGED_EVENT));
         set(() => ({
           selfAccountUuid: account.uuid,
           selfAccountToken: account.token,
@@ -88,6 +96,14 @@ export const useAccountStore = create<AccountStore>()(
       logOutAccount() {
         localStorage.setItem(TOKEN_KEY, "");
         set(() => ({ selfAccountUuid: "", selfAccountToken: "" }));
+      },
+
+      getSelfAccountToken() {
+        const token = localStorage.getItem(TOKEN_KEY) ?? "";
+        if (token.length === 0) {
+          return undefined;
+        }
+        return token;
       },
     }),
     { name: LOCAL_KEY, version: 1 }

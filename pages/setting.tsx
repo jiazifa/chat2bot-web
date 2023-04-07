@@ -1,9 +1,9 @@
 'use client';
 
 import { Container, Flex, Group, Paper, SegmentedControl, Select, Slider, Space, Switch, Text, TextInput, Title } from "@mantine/core";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Locales from '../locales';
-import { useAccountStore, useAppStore, useChatStore } from "../store";
+import { SubmitKey, useAccountStore, useAppStore, useChatStore } from "../store";
 
 const SettingItemBuilder = ({ children, title, description }: { children: ReactNode, title: string, description?: string }) => {
     return (
@@ -44,10 +44,31 @@ const SettingPage = () => {
     const chatStore = useChatStore();
     const appStore = useAppStore();
 
-    const selfAccount = accountStore.getSelfAccount();
-    const lang = appStore.appConfig.language;
-    const submitKey = chatStore.config.submitKey;
+    const [selfEmail, setSelfEmail] = useState<string | undefined>(undefined);
+    const [submitKey, setSubmitKey] = useState<string | undefined>(undefined);
+    // const submitOptionKey = Object.keys(SubmitKey).map((key) => (key));
+    const submitOptions = Object.values(SubmitKey).map((value) => ({ value: value, label: value }));
 
+    useEffect(() => {
+        const email = accountStore.getSelfAccount()?.email
+        setSelfEmail(email);
+
+        const submitKey = chatStore.chatConfig.submitKey;
+        console.log(submitKey)
+        setSubmitKey(submitKey);
+    }, []);
+
+    const lang = appStore.appConfig.language;
+
+    const onSubmitKeyChange = (e: string) => {
+        const targetKey = Object.values(SubmitKey).find((value) => value === e);
+        if (targetKey) {
+            chatStore.updateChatConfig((config) => {
+                config.submitKey = targetKey;
+            })
+            setSubmitKey(targetKey);
+        }
+    };
     return (
         <>
             <Container>
@@ -55,7 +76,7 @@ const SettingPage = () => {
 
                 <SettingItemBuilder title={Locales.Settings.Email.Title} description={Locales.Settings.Email.SubTitle}>
                     <Text ta="center" c="dimmed" fz="sm">
-                        {selfAccount?.email ?? Locales.Settings.Email.NoEmail}
+                        {selfEmail ?? Locales.Settings.Email.NoEmail}
                     </Text>
                 </SettingItemBuilder>
 
@@ -76,7 +97,7 @@ const SettingPage = () => {
                 </SettingItemBuilder>
 
                 <SettingItemBuilder title={Locales.Settings.SendKey}>
-                    <Select value={submitKey} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
+                    <Select value={submitKey} data={submitOptions} onChange={onSubmitKeyChange} />
                 </SettingItemBuilder>
 
                 <SettingItemBuilder title={Locales.Settings.Theme}>

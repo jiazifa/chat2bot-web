@@ -1,29 +1,11 @@
 import { notifications } from "@mantine/notifications";
-import { Message } from "../store";
+import { ACCOUNT_STAT_CHANGED_EVENT, Message, TOKEN_KEY } from "../store";
+import Locales from "../locales";
 
-class HTTPError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.message = message;
-    this.name = "HTTP Error";
-  }
+function postAccountStatusChangedEvent() {
+  const event = new Event(ACCOUNT_STAT_CHANGED_EVENT);
+  window.dispatchEvent(event);
 }
-
-/**
- * 异常处理程序
- */
-// eslint-disable-next-line @typescript-eslint/ban-types
-const errorHandler = (error: {
-  response: Response;
-  data: { [key: string]: object };
-}): object => {
-  const { response, data } = error;
-  console.log(data);
-  if (data || data !== undefined) {
-    return data;
-  }
-  return response;
-};
 
 const TIME_OUT_MS = 30000;
 
@@ -44,10 +26,14 @@ async function request(
   const resp = await fetch(url, options);
   const r = await resp.json();
   if (r.code != 200) {
+    if (r.code === 401) {
+      localStorage.removeItem(TOKEN_KEY);
+      postAccountStatusChangedEvent();
+    }
     if (r.msg) {
       notifications.show({ title: r.msg, color: "red", message: r.msg });
-      Promise.reject(r);
     }
+    Promise.reject(r);
   }
   return r;
 }
@@ -68,11 +54,11 @@ async function POST(
 }
 
 function getAuthHeader(): { [key: string]: string } {
-  let token = localStorage.getItem("token");
+  let token = localStorage.getItem(TOKEN_KEY);
   if (token === null) {
     return {};
   }
-  token = `Bearer ${token}`;
+  token = `Token ${token}`;
   const headers = {
     Authorization: token,
   };
@@ -89,11 +75,12 @@ async function AUTHGET(path: string): Promise<ResponseModel> {
   const headers = getAuthHeader();
   if (headers["Authorization"] === undefined) {
     notifications.show({
-      title: "请先登录",
+      title: Locales.Auth.TokenMissed,
       color: "red",
-      message: "请先登录",
+      message: Locales.Auth.GoLogin,
     });
-    return Promise.reject({ code: 400, msg: "请先登录" });
+    postAccountStatusChangedEvent();
+    return Promise.reject({ code: 401, msg: Locales.Auth.GoLogin });
   }
 
   return request(path, {
@@ -107,14 +94,14 @@ async function AUTHPOST(
   data: Record<string, unknown> | undefined = {}
 ): Promise<ResponseModel> {
   const headers = getAuthHeader();
-  console.log(headers);
   if (headers["Authorization"] === undefined) {
     notifications.show({
-      title: "请先登录",
+      title: Locales.Auth.TokenMissed,
       color: "red",
-      message: "请先登录",
+      message: Locales.Auth.GoLogin,
     });
-    return Promise.reject({ code: 400, msg: "请先登录" });
+    postAccountStatusChangedEvent();
+    return Promise.reject({ code: 401, msg: Locales.Auth.GoLogin });
   }
   return request(path, {
     method: "POST",
