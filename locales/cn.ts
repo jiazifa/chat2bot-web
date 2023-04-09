@@ -49,7 +49,7 @@ const cn = {
     SubTitle: "设置选项",
     Email: {
       Title: "邮箱",
-      SubTitle: "用于接收更新通知",
+      SubTitle: "用于接收通知",
       NoEmail: "未设置邮箱",
     },
     Actions: {
@@ -96,29 +96,6 @@ const cn = {
     CompressThreshold: {
       Title: "历史消息长度压缩阈值",
       SubTitle: "当未压缩的历史消息超过该值时，将进行压缩",
-    },
-    Token: {
-      Title: "API Key",
-      SubTitle: "使用自己的 Key 可绕过受控访问限制",
-      Placeholder: "OpenAI API Key",
-    },
-    AccessCode: {
-      Title: "访问码",
-      SubTitle: "现在是受控访问状态",
-      Placeholder: "请输入访问码",
-    },
-    Model: "模型 (model)",
-    Temperature: {
-      Title: "随机性 (temperature)",
-      SubTitle: "值越大，回复越随机",
-    },
-    MaxTokens: {
-      Title: "单次回复限制 (max_tokens)",
-      SubTitle: "单次交互所用的最大 Token 数",
-    },
-    PresencePenlty: {
-      Title: "话题新鲜度 (presence_penalty)",
-      SubTitle: "值越大，越有可能扩展到新话题",
     },
   },
   Store: {

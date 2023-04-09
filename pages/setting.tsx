@@ -80,35 +80,32 @@ const SettingPage = () => {
                     </Text>
                 </SettingItemBuilder>
 
-                <SettingItemBuilder title={Locales.Settings.Lang.Name}>
+                {/* <SettingItemBuilder title={Locales.Settings.Lang.Name}>
                     <Select value={lang} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
-                </SettingItemBuilder>
+                </SettingItemBuilder> */}
 
             </Container>
 
             <Container mt='lg'>
 
-                <SettingItemBuilder title={Locales.Settings.FontSize.Title} description={Locales.Settings.FontSize.SubTitle}>
+                {/* <SettingItemBuilder title={Locales.Settings.FontSize.Title} description={Locales.Settings.FontSize.SubTitle}>
                     <SegmentedControl
                         radius='lg'
                         size="md"
                         data={['xs', 'sm', 'md', 'lg', 'xl']}
                     />
-                </SettingItemBuilder>
+                </SettingItemBuilder> */}
 
                 <SettingItemBuilder title={Locales.Settings.SendKey}>
                     <Select value={submitKey} data={submitOptions} onChange={onSubmitKeyChange} />
                 </SettingItemBuilder>
 
-                <SettingItemBuilder title={Locales.Settings.Theme}>
-                    <Select value={"cn"} data={[{ value: "cn", label: Locales.Settings.Lang.Options.cn }]} />
-                </SettingItemBuilder>
 
-                <SettingItemBuilder title={Locales.Settings.Prompt.Disable.Title}>
+                {/* <SettingItemBuilder title={Locales.Settings.Prompt.Disable.Title}>
                     <Switch size='lg' />
-                </SettingItemBuilder>
+                </SettingItemBuilder> */}
 
-                <SettingItemBuilder title={Locales.Settings.HistoryCount.Title} description={Locales.Settings.HistoryCount.SubTitle}>
+                {/* <SettingItemBuilder title={Locales.Settings.HistoryCount.Title} description={Locales.Settings.HistoryCount.SubTitle}>
                     <Slider
                         sx={{ width: 200 }}
                         defaultValue={40}
@@ -124,46 +121,9 @@ const SettingPage = () => {
                         min={10}
                         max={90}
                     />
-                </SettingItemBuilder>
+                </SettingItemBuilder> */}
             </Container>
 
-            <Container mt='lg'>
-                <SettingItemBuilder title={Locales.Settings.Token.Title} description={Locales.Settings.Token.SubTitle}>
-                    <TextInput withAsterisk />
-                </SettingItemBuilder>
-
-
-                <SettingItemBuilder title={Locales.Settings.Temperature.Title} description={Locales.Settings.Temperature.SubTitle}>
-                    <Group>
-                        <Slider
-                            sx={{ width: 200 }}
-                            defaultValue={40}
-                            min={10}
-                            max={90}
-                        />
-                        <Text>value</Text>
-                    </Group>
-                </SettingItemBuilder>
-
-
-                <SettingItemBuilder title={Locales.Settings.MaxTokens.Title} description={Locales.Settings.MaxTokens.SubTitle}>
-                    <Slider
-                        sx={{ width: 200 }}
-                        defaultValue={40}
-                        min={10}
-                        max={90}
-                    />
-                </SettingItemBuilder>
-
-                <SettingItemBuilder title={Locales.Settings.PresencePenlty.Title} description={Locales.Settings.PresencePenlty.SubTitle}>
-                    <Slider
-                        sx={{ width: 200 }}
-                        defaultValue={40}
-                        min={10}
-                        max={90}
-                    />
-                </SettingItemBuilder>
-            </Container>
         </>
     )
 };

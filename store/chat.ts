@@ -18,9 +18,17 @@ export interface ChatConversation {
   conversationStat: ConversationStat;
 }
 
-export type MessageStat = {
-  streaming: boolean;
-  isError: boolean;
+export enum MessageStat {
+  unknown = "unknown",
+  sending = "sending",
+  waiting = "waiting",
+  streaming = "streaming",
+  error = "error",
+  success = "success",
+}
+
+export type MessageExtraInfo = {
+  stat: MessageStat;
   errorMsg?: string;
 };
 
@@ -28,7 +36,7 @@ export type Message = {
   role: Role;
   content: string;
   date: number;
-  stat?: MessageStat;
+  extra?: MessageExtraInfo;
 };
 
 export interface ChatStat {
@@ -57,80 +65,6 @@ export interface ChatConfig {
   fontSize: number;
 
   disablePromptHint: boolean;
-
-  modelConfig: {
-    model: string;
-    temperature: number;
-    max_tokens: number;
-    presence_penalty: number;
-  };
-}
-
-export type ModelConfig = ChatConfig["modelConfig"];
-
-const ENABLE_GPT4 = true;
-
-export const ALL_MODELS = [
-  {
-    name: "gpt-4",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-4-0314",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-4-32k",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-4-32k-0314",
-    available: ENABLE_GPT4,
-  },
-  {
-    name: "gpt-3.5-turbo",
-    available: true,
-  },
-  {
-    name: "gpt-3.5-turbo-0301",
-    available: true,
-  },
-];
-export function isValidModel(name: string) {
-  return ALL_MODELS.some((m) => m.name === name && m.available);
-}
-
-export function isValidNumber(x: number, min: number, max: number) {
-  return typeof x === "number" && x <= max && x >= min;
-}
-
-export function filterConfig(config: ModelConfig): Partial<ModelConfig> {
-  const validator: {
-    [k in keyof ModelConfig]: (x: ModelConfig[keyof ModelConfig]) => boolean;
-  } = {
-    model(x) {
-      return isValidModel(x as string);
-    },
-    max_tokens(x) {
-      return isValidNumber(x as number, 100, 4000);
-    },
-    presence_penalty(x) {
-      return isValidNumber(x as number, -2, 2);
-    },
-    temperature(x) {
-      return isValidNumber(x as number, 0, 1);
-    },
-  };
-
-  Object.keys(validator).forEach((k) => {
-    const key = k as keyof ModelConfig;
-    if (!validator[key](config[key])) {
-      // eslint-disable-next-line no-param-reassign
-      delete config[key];
-    }
-  });
-
-  return config;
 }
 
 const DEFAULT_CHAT_CONFIG: ChatConfig = {
@@ -141,13 +75,6 @@ const DEFAULT_CHAT_CONFIG: ChatConfig = {
   fontSize: 14,
 
   disablePromptHint: false,
-
-  modelConfig: {
-    model: "gpt-3.5-turbo",
-    temperature: 1,
-    max_tokens: 2000,
-    presence_penalty: 0,
-  },
 };
 
 const DEFAULT_TOPIC = Locale.Store.DefaultTopic;
@@ -307,13 +234,12 @@ export const useChatStore = create<ChatStore>()(
             date: timestamp,
           } as Message;
 
-          const botMessage = {
+          let botMessage = {
             role: "assistant",
             content: "",
             date: timestamp,
-            stat: {
-              streaming: true,
-              isError: false,
+            extra: {
+              stat: MessageStat.waiting,
             },
           } as Message;
 
@@ -334,26 +260,21 @@ export const useChatStore = create<ChatStore>()(
             console.log("resp", resp);
             get().updateCurrentConversation((conversation) => {
               conversation.messages.pop();
-              botMessage.stat = {
-                streaming: false,
-                isError: false,
-                ...botMessage.stat,
+              botMessage.extra = {
+                stat: MessageStat.success,
+                ...botMessage.extra,
               };
               botMessage.content = resp.content;
               conversation.messages.push(botMessage);
             });
           } catch (e) {
-            console.log("error", e);
             get().updateCurrentConversation((conversation) => {
               conversation.messages.pop();
-              // botMessage.stat = {
-              //   streaming: false,
-              //   isError: true,
-              //   errorMsg: "Error",
-              //   ...botMessage.stat,
-              // };
-              // botMessage.content = `${JSON.stringify(e)}`;
-              // conversation.messages.push(botMessage);
+              botMessage.extra = {
+                stat: MessageStat.error,
+              };
+              botMessage.content = "";
+              conversation.messages.push(botMessage);
             });
           }
         },

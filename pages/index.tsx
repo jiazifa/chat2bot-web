@@ -2,6 +2,7 @@ import { createStyles, Container, Text, Button, rem, Group } from '@mantine/core
 import { useEffect, useState } from 'react';
 import { Account, useAccountStore } from '../store';
 import Locales from '../locales';
+import { useDisclosure } from '@mantine/hooks';
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -70,10 +71,11 @@ const useStyles = createStyles((theme) => ({
 
 const HomePage = () => {
   const { classes } = useStyles();
-  const myAccount = useAccountStore((state) => state.getSelfAccount());
+  const accountStore = useAccountStore();
   const [account, setAccount] = useState<Account | undefined>(undefined);
-
+  const [visible, { toggle }] = useDisclosure(false);
   useEffect(() => {
+    const myAccount = accountStore.getSelfAccount();
     setAccount(myAccount);
   }, []);
 
@@ -94,22 +96,26 @@ const HomePage = () => {
 
         <Group className={classes.controls}>
           <Button
+            loading={visible}
+            component="a"
             size="xl"
+            href={account ? '/chat/' : '/auth/login/'}
             className={classes.control}
             variant="gradient"
             gradient={{ from: 'blue', to: 'cyan' }}
+            onClick={toggle}
           >
             {account ? Locales.Home.NewChat : Locales.Auth.GoLogin}
           </Button>
           {
             account ? <></> : <Button
               component="a"
-              href="https://github.com/mantinedev/mantine"
+              href="/auth/register/"
               size="xl"
               variant="default"
               className={classes.control}
             >
-              登录
+              {Locales.Auth.GoRegister}
             </Button>
           }
 

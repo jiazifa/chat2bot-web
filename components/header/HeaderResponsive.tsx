@@ -11,6 +11,7 @@ import {
     Transition,
     rem,
     Avatar,
+    ActionIcon,
 } from '@mantine/core';
 import { useDisclosure, useWindowEvent } from '@mantine/hooks';
 import BotIcon from '../../icons/bot.svg';
@@ -91,11 +92,22 @@ const useStyles = createStyles((theme) => ({
     },
 }));
 
+const LINKS = [
+    {
+        link: '/',
+        label: Locales.NavBar.Home,
+    },
+    {
+        link: '/setting',
+        label: Locales.NavBar.Settings,
+    }
+]
+
 interface HeaderResponsiveProps {
-    links: { link: string; label: string }[];
 }
 
-export function HeaderResponsive({ links }: HeaderResponsiveProps) {
+export function HeaderResponsive({ }: HeaderResponsiveProps) {
+    const links = LINKS;
 
     const [opened, { toggle, close }] = useDisclosure(false);
     const [active, setActive] = useState(links[0].link);
@@ -109,6 +121,7 @@ export function HeaderResponsive({ links }: HeaderResponsiveProps) {
 
     const router = useRouter();
     const isAuthPage = router.pathname.includes('/auth/');
+    const isIndexPage = router.pathname === '/';
 
     const [selfAccount, setSelfAccount] = useState<Account | undefined>(undefined);
 
@@ -117,7 +130,7 @@ export function HeaderResponsive({ links }: HeaderResponsiveProps) {
     }, []);
 
     let items: React.ReactNode[] = []
-    if (isAuthPage) {
+    if (isAuthPage || (isIndexPage && !selfAccount)) {
         items = [< ColorSchemeToggle key='header-color-scheme-toggle' />]
     } else {
         items = links.map((link) => (
@@ -146,7 +159,9 @@ export function HeaderResponsive({ links }: HeaderResponsiveProps) {
     return (
         <Header height={HEADER_HEIGHT} className={classes.root}>
             <Container className={classes.header}>
-                <BotIcon size={28} />
+                <ActionIcon size='lg' component='a' href='/'>
+                    <BotIcon size={28} />
+                </ActionIcon>
                 <Group spacing={5} className={classes.links}>
                     {items}
                 </Group>

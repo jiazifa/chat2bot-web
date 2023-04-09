@@ -38,7 +38,7 @@ export function CardGradient({ icon, title, description, onClick }: CardGradient
     const { classes } = useStyles();
     return (
         <Paper withBorder radius="md" className={classes.card} onClick={() => onClick()}>
-            <Text fz='lg' fw='700' lineClamp={2}>
+            <Text fz='lg' fw={700} lineClamp={2}>
                 {title}
             </Text>
 

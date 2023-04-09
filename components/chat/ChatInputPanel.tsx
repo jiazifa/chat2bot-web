@@ -33,10 +33,10 @@ function useSubmitHandler() {
 }
 
 interface ChatInputPanelProps {
-    height: number;
+    onUserInput?: (content: string) => void;
 };
 
-const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
+const ChatInputPanel = ({ onUserInput }: ChatInputPanelProps) => {
     const chatStore = useChatStore();
 
     const [inputContent, setInputContent] = useState<string>('');
@@ -53,6 +53,9 @@ const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
 
     const onSubmitAction = () => {
         const content = inputContent;
+        if (onUserInput) {
+            onUserInput(content);
+        }
         chatStore.onUserInput(content).then(() => {
             setIsLoading(false);
         });
@@ -61,7 +64,7 @@ const ChatInputPanel = ({ height }: ChatInputPanelProps) => {
 
     return (
         <>
-            <Flex gap='md' align='center' h={height}>
+            <Flex gap='md' align='center'>
                 <Textarea
                     w={1000}
                     minRows={3}

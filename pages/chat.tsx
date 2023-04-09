@@ -1,6 +1,6 @@
 'use client';
 
-import { useViewportSize } from '@mantine/hooks';
+import { useScrollIntoView, useViewportSize } from '@mantine/hooks';
 import { Text, Container, Flex, Paper, ScrollArea, Stack, Title, Divider, Space, Box, Group, Button, createStyles, rem, ActionIcon, Modal, Dialog } from '@mantine/core';
 import ChatContent from '../components/chat/ChatContent';
 import ConversationList from '../components/chat/ConversationList';
@@ -14,6 +14,7 @@ import ChatContentHeader from '../components/chat/ChatContentHeader';
 
 
 const ChatPage = () => {
+    const { scrollIntoView, targetRef } = useScrollIntoView<HTMLDivElement>();
     const chatStore = useChatStore();
     const [cleanAllConversationModalOpened, setCleanAllConversationModalOpened] = useState<boolean>(false);
 
@@ -29,6 +30,13 @@ const ChatPage = () => {
 
     const handleDeleteAllConversation = () => {
         chatStore.clearAllData();
+    };
+
+    const onUserInput = (content: string) => {
+        const scrollContent = document.getElementById('chat-content-scroll-area');
+        if (scrollContent) {
+            scrollContent.lastElementChild?.scrollIntoView(false);
+        }
     };
 
     return (
@@ -75,16 +83,15 @@ const ChatPage = () => {
                         }}
                     >
                         <ChatContentHeader height={sideBarHeaderHeight} />
-                        <ScrollArea p="xs"
+                        <ScrollArea id='chat-content-scroll-area' p="xs"
                             scrollbarSize={8}
                             sx={{ height: chatSideBarBodyHeight }}
                             type='hover'>
                             <ChatContent />
+                            <Divider ref={targetRef} label="已经是最新了!" labelPosition='center' />
                         </ScrollArea>
 
-                        <ChatInputPanel
-                            height={chatInputContentHeight}
-                        />
+                        <ChatInputPanel onUserInput={onUserInput} />
                         <Space />
                     </Stack>
                 </Flex>

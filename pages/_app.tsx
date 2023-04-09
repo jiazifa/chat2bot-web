@@ -4,8 +4,8 @@ import { getCookie, setCookie } from 'cookies-next';
 import Head from 'next/head';
 import { MantineProvider, ColorScheme, ColorSchemeProvider } from '@mantine/core';
 import { Notifications } from '@mantine/notifications';
-import { HeaderResponsive } from '../components/header';
 import Locales from '../locales';
+import { HeaderResponsive } from '../components/header';
 
 export default function App(props: AppProps & { colorScheme: ColorScheme }) {
   const { Component, pageProps } = props;
@@ -17,28 +17,17 @@ export default function App(props: AppProps & { colorScheme: ColorScheme }) {
     setCookie('mantine-color-scheme', nextColorScheme, { maxAge: 60 * 60 * 24 * 30 });
   };
 
-  const LINKS = [
-    {
-      link: '/',
-      label: Locales.NavBar.Home,
-    },
-    {
-      link: '/setting',
-      label: Locales.NavBar.Settings,
-    }
-  ]
-
   return (
     <>
       <Head>
-        <title>Chat 2 Bot</title>
+        <title>{Locales.Auth.Welcome}</title>
         <meta name="viewport" content="minimum-scale=1, initial-scale=1, width=device-width" />
         <link rel="shortcut icon" href="/favicon.svg" />
       </Head>
 
       <ColorSchemeProvider colorScheme={colorScheme} toggleColorScheme={toggleColorScheme}>
         <MantineProvider theme={{ colorScheme, primaryColor: 'blue' }} withGlobalStyles withNormalizeCSS>
-          <HeaderResponsive links={LINKS} />
+          <HeaderResponsive />
           <Component {...pageProps} />
           <Notifications />
         </MantineProvider>
